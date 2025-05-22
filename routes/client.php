@@ -17,7 +17,7 @@ Route::get('products/{slug}', function ($slug) {
     return response()->json([
       'data' => null,
       'msg' => 'Item not found.'
-    ], 4040);
+    ], 404);
   }
   return response()->json([
     'data' => [
@@ -40,4 +40,57 @@ Route::get('products/{slug}', function ($slug) {
       ]
     ]
   ]);
+});
+
+Route::post('products', function (Request $request) {
+    // Income request data
+    $validated = $request->validate([
+        'name'        => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'slug'        => 'required|string',
+        'price'       => 'required|integer|min:0',
+        'active'      => 'sometimes|boolean',
+    ]);
+
+    $product = $validated;
+    $product['id'] = 2; 
+
+    return response()->json([
+        'msg'  => 'Product created successfully.',
+        'data' => $product,
+    ], 201);
+});
+
+Route::put('products/{id}', function ($id, Request $request) {
+
+    $validated = $request->validate([
+        'name'        => 'sometimes|required|string|max:255',
+        'description' => 'nullable|string',
+        'slug'        => 'sometimes|required|string',
+        'price'       => 'sometimes|required|integer|min:0',
+        'active'      => 'sometimes|boolean',
+    ]);
+
+    $existingProduct = [
+        'id'          => $id,
+        'name'        => 'Existing Test Product',
+        'description' => 'Existing product description.',
+        'slug'        => 'existing-product-slug',
+        'price'       => 300,
+        'active'      => true,
+    ];
+
+    $updatedProduct = array_merge($existingProduct, $validated);
+
+    return response()->json([
+        'msg'  => 'Product updated successfully.',
+        'data' => $updatedProduct
+    ], 200);
+});
+
+Route::delete('products/{id}', function ($id) {
+
+    return response()->json([
+        'msg' => "Product with id {$id} deleted successfully."
+    ], 200);
 });

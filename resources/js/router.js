@@ -1,4 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import Product from './views/Product.vue';
+import NotFound from './views/NotFound.vue';
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -10,7 +12,12 @@ const router = createRouter({
     {
       path: '/shop/product/:slug',
       name: 'product',
-      component: () => import('./views/Product.vue')
+      component: Product
+    },
+    {
+      path: '/:catchAll(.*)',
+      name: 'NotFound',
+      component: NotFound
     }
   ],
 })
