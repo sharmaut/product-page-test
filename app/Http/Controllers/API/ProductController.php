@@ -7,13 +7,16 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
     // Get Method for Fetching the product
     public function show($slug) {
         try {
-            $product = Product::with(['images', 'discount'])->where('slug', $slug)->firstOrFail();
+            $cacheKey = "product_{$slug}";
+            $product = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($slug) {
+            return Product::with(['images', 'discount'])->where('slug', $slug)->firstOrFail();});
 
             // if (!$product) {
             //     return response()->json(['error' => 'Product not found'], 404);
@@ -51,7 +54,7 @@ class ProductController extends Controller
 
             return response()->json($response); 
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Product not found'], 404);
+            return response()->json(['error' => "Product with slug {$slug} not found."], 404);
         } 
         catch (\Exception $e) {
              return response()->json(['error' => 'Unexpected error: ' . $e->getMessage()], 500);
